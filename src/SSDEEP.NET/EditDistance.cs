@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SsdeepNET
+namespace SSDEEP.NET
 {
     internal static class EditDistance
     {

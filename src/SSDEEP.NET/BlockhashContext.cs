@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SsdeepNET
+﻿namespace SSDEEP.NET
 {
     /* A blockhash contains a signature state for a specific (implicit) blocksize.
      * The blocksize is given by SSDEEP_BS(index). The h and halfh members are the

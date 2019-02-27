@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SsdeepNET
+﻿namespace SSDEEP.NET
 {
-    static internal class FuzzyConstants
+    internal static class FuzzyConstants
     {
         public const int RollingWindow = 7;
         public const int MinBlocksize = 3;

@@ -1,9 +1,7 @@
-﻿using System.Diagnostics;
-using System;
+﻿using System;
 using System.Text;
-using System.IO;
 
-namespace SsdeepNET
+namespace SSDEEP.NET
 {
     public sealed class Hasher
     {
