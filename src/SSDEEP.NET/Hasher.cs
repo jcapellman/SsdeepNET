@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace SSDEEP.NET
@@ -29,7 +30,7 @@ namespace SSDEEP.NET
             _bh[0].Reset(true);
         }
 
-        private static int MemcpyEliminateSequences(byte[] dst, int pos, byte[] src, int n)
+        private static int MemcpyEliminateSequences(IList<byte> dst, int pos, IReadOnlyList<byte> src, int n)
         {
             var i = 0;
 
@@ -242,12 +243,12 @@ namespace SSDEEP.NET
         /// <summary>
         /// Feed the data contained in the given buffer to the state.
         /// </summary>
-        private void Update(byte[] buffer, int len)
+        private void Update(IReadOnlyList<byte> buffer, int len)
         {
-            _totalSize += (uint)buffer.Length;
+            _totalSize += (uint)buffer.Count;
 
-            for (int i = 0; i < len; i++)
-                this.EngineStep(buffer[i]);
+            for (var i = 0; i < len; i++)
+                EngineStep(buffer[i]);
         }
     }
 }

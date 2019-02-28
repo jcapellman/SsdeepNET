@@ -2,16 +2,13 @@
 {
     sealed class Roll
     {
-        private byte[] _window = new byte[FuzzyConstants.RollingWindow];
+        private readonly byte[] _window = new byte[FuzzyConstants.RollingWindow];
         private uint _h1;
         private uint _h2;
         private uint _h3;
         private uint _n;
 
-        public uint Sum()
-        {
-            return _h1 + _h2 + _h3;
-        }
+        public uint Sum() => _h1 + _h2 + _h3;
 
         /*
          * a rolling hash, based on the Adler checksum. By using a rolling hash
@@ -28,8 +25,8 @@
             _h2 -= _h1;
             _h2 += FuzzyConstants.RollingWindow * (uint)c;
 
-            _h1 += (uint)c;
-            _h1 -= (uint)_window[_n % FuzzyConstants.RollingWindow];
+            _h1 += c;
+            _h1 -= _window[_n % FuzzyConstants.RollingWindow];
 
             _window[_n % FuzzyConstants.RollingWindow] = c;
             _n++;

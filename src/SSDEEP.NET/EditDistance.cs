@@ -17,10 +17,10 @@ namespace SSDEEP.NET
          * Copyright (C) 2014 Jesse Kornblum <research@jessekornblum.com>
          */
 
-        const int MaxLength = 64;
-        const int InsertCost = 1;
-        const int RemoveCost = 1;
-        const int ReplaceCost = 2;
+        private const int MaxLength = 64;
+        private const int InsertCost = 1;
+        private const int RemoveCost = 1;
+        private const int ReplaceCost = 2;
 
         public static int Compute(char[] s1, char[] s2)
         {
@@ -28,23 +28,29 @@ namespace SSDEEP.NET
             var t1 = new int[MaxLength + 1];
 
             for (var i = 0; i <= s2.Length; i++)
+            {
                 t0[i] = i;
+            }
 
             for (var i = 0; i < s1.Length; i++)
             {
                 t1[0] = i + 1;
+
                 for (var j = 0; j < s2.Length; j++)
                 {
                     var cost_a = t0[j + 1] + InsertCost;
                     var cost_d = t1[j] + RemoveCost;
                     var cost_r = t0[j] + (s1[i] == s2[j] ? 0 : ReplaceCost);
+
                     t1[j + 1] = Math.Min(Math.Min(cost_a, cost_d), cost_r);
                 }
 
                 var tmp = t0;
+
                 t0 = t1;
                 t1 = tmp;
             }
+
             return t0[s2.Length];
         }
     }

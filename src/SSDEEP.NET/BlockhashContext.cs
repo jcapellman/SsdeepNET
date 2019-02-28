@@ -23,20 +23,20 @@
         }
 
         /* A simple non-rolling hash, based on the FNV hash. */
-        private static uint Hash(byte c, uint h)
-        {
-            return (h * HashPrime) ^ c;
-        }
+        private static uint Hash(byte c, uint h) => (h * HashPrime) ^ c;
 
         public void Reset(bool init = false)
         {
             Digest[init ? DLen : ++DLen] = 0;
             H = HashInit;
-            if (DLen < FuzzyConstants.SpamSumLength / 2)
+
+            if (DLen >= FuzzyConstants.SpamSumLength / 2)
             {
-                HalfH = HashInit;
-                HalfDigest = 0;
+                return;
             }
+
+            HalfH = HashInit;
+            HalfDigest = 0;
         }
     }
 }

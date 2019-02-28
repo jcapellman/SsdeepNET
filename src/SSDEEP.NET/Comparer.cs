@@ -12,23 +12,19 @@ namespace SSDEEP.NET
         /// </returns>
         public static int Compare(string str1, string str2)
         {
-            int block_size1;
-            int block_size2;
-            int score = 0;
-            char[] s1_1;
-            char[] s1_2;
-            char[] s2_1;
-            char[] s2_2;
+            int score;
 
             if (str1 == null || str2 == null)
+            {
                 throw new ArgumentNullException();
+            }
 
             // each spamsum is prefixed by its block size
             var colon1Pos = str1.IndexOf(':');
             var colon2Pos = str2.IndexOf(':');
             if (colon1Pos == -1 || colon2Pos == -1 ||
-                !Int32.TryParse(str1.Substring(0, colon1Pos), out block_size1) ||
-                !Int32.TryParse(str2.Substring(0, colon2Pos), out block_size2) ||
+                !int.TryParse(str1.Substring(0, colon1Pos), out var block_size1) ||
+                !Int32.TryParse(str2.Substring(0, colon2Pos), out var block_size2) ||
                 block_size1 < 1 || block_size2 < 1)
                 throw new Exception("Badly formed input");
 
@@ -53,11 +49,11 @@ namespace SSDEEP.NET
             var comma1Pos = str1.IndexOf(',', colon12Pos + 1);
             var comma2Pos = str2.IndexOf(',', colon22Pos + 1);
 
-            s1_1 = str1.ToCharArray(colon1Pos + 1, colon12Pos - colon1Pos - 1);
-            s2_1 = str2.ToCharArray(colon2Pos + 1, colon22Pos - colon2Pos - 1);
+            var s1_1 = str1.ToCharArray(colon1Pos + 1, colon12Pos - colon1Pos - 1);
+            var s2_1 = str2.ToCharArray(colon2Pos + 1, colon22Pos - colon2Pos - 1);
 
-            s1_2 = str1.ToCharArray(colon12Pos + 1, comma1Pos == -1 ? str1.Length - colon12Pos - 1 : comma1Pos - colon12Pos - 1);
-            s2_2 = str2.ToCharArray(colon22Pos + 1, comma2Pos == -1 ? str2.Length - colon22Pos - 1 : comma2Pos - colon22Pos - 1);
+            var s1_2 = str1.ToCharArray(colon12Pos + 1, comma1Pos == -1 ? str1.Length - colon12Pos - 1 : comma1Pos - colon12Pos - 1);
+            var s2_2 = str2.ToCharArray(colon22Pos + 1, comma2Pos == -1 ? str2.Length - colon22Pos - 1 : comma2Pos - colon22Pos - 1);
 
             if (s1_1.Length == 0 || s2_1.Length == 0 || s1_2.Length == 0 || s2_2.Length == 0)
                 throw new Exception("Badly formed input");
@@ -250,35 +246,38 @@ namespace SSDEEP.NET
                     continue;
                 for (j = FuzzyConstants.RollingWindow - 1; j < num_hashes; j++)
                 {
-                    if (hashes[j] != 0 && hashes[j] == h)
+                    if (hashes[j] == 0 || hashes[j] != h)
                     {
-                        // we have a potential match - confirm it
-                        var s2StartPos = i - FuzzyConstants.RollingWindow + 1;
-                        int len = 0;
-                        while (len + s2StartPos < s2.Length && s2[len + s2StartPos] != '\0')
-                            len++;
-                        if (len < FuzzyConstants.RollingWindow)
-                            continue;
+                        continue;
+                    }
 
-                        var matched = true;
-                        var s1StartPos = j - FuzzyConstants.RollingWindow + 1;
-                        for (int pos = 0; pos < FuzzyConstants.RollingWindow; pos++)
+                    // we have a potential match - confirm it
+                    var s2StartPos = i - FuzzyConstants.RollingWindow + 1;
+                    int len = 0;
+                    while (len + s2StartPos < s2.Length && s2[len + s2StartPos] != '\0')
+                        len++;
+                    if (len < FuzzyConstants.RollingWindow)
+                        continue;
+
+                    var matched = true;
+                    var s1StartPos = j - FuzzyConstants.RollingWindow + 1;
+                    for (var pos = 0; pos < FuzzyConstants.RollingWindow; pos++)
+                    {
+                        var s1Char = s1[s1StartPos + pos];
+                        var s2Char = s2[s2StartPos + pos];
+
+                        if (s1Char != s2Char)
                         {
-                            var s1char = s1[s1StartPos + pos];
-                            var s2char = s2[s2StartPos + pos];
-                            if (s1char != s2char)
-                            {
-                                matched = false;
-                                break;
-                            }
-
-                            if (s1char == '\0')
-                                break;
+                            matched = false;
+                            break;
                         }
 
-                        if (matched)
-                            return true;
+                        if (s1Char == '\0')
+                            break;
                     }
+
+                    if (matched)
+                        return true;
                 }
             }
 
