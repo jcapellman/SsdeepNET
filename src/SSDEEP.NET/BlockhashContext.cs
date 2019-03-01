@@ -7,8 +7,8 @@
      * output hash to stay compatible with ssdeep output. */
     sealed class BlockhashContext
     {
-        const int HashPrime = 0x01000193;
-        const int HashInit = 0x28021967;
+        private const int HashPrime = 0x01000193;
+        private const int HashInit = 0x28021967;
 
         public uint H;
         public uint HalfH;

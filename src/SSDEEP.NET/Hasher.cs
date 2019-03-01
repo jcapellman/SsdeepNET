@@ -64,7 +64,7 @@ namespace SSDEEP.NET
             int i; // Exclude terminating '\0'.
 
             /* Initial blocksize guess. */
-            while ((uint)(((uint)FuzzyConstants.MinBlocksize) << (int)(bi)) * FuzzyConstants.SpamSumLength < _totalSize)
+            while ((((uint)FuzzyConstants.MinBlocksize) << (int)(bi)) * FuzzyConstants.SpamSumLength < _totalSize)
             {
                 ++bi;
                 if (bi >= FuzzyConstants.NumBlockhashes)
@@ -160,12 +160,10 @@ namespace SSDEEP.NET
 
         private void TryForkBlockhash()
         {
-            BlockhashContext obh;
-            BlockhashContext nbh;
             if (_bhend >= FuzzyConstants.NumBlockhashes)
                 return;
-            obh = _bh[_bhend - 1];
-            nbh = _bh[_bhend];
+            var obh = _bh[_bhend - 1];
+            var nbh = _bh[_bhend];
             nbh.H = obh.H;
             nbh.HalfH = obh.HalfH;
             nbh.Digest[0] = 0;
@@ -179,7 +177,7 @@ namespace SSDEEP.NET
             if (_bhend - _bhstart < 2)
                 /* Need at least two working hashes. */
                 return;
-            if ((uint)(((uint)FuzzyConstants.MinBlocksize) << (int)(_bhstart)) * FuzzyConstants.SpamSumLength >= _totalSize)
+            if ((((uint)FuzzyConstants.MinBlocksize) << (int)(_bhstart)) * FuzzyConstants.SpamSumLength >= _totalSize)
                 /* Initial blocksize estimate would select this or a smaller
                  * blocksize. */
                 return;

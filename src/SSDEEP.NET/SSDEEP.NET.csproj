@@ -6,6 +6,7 @@
     <Company />
     <Description>.NET Standard SSDEEP Implementation</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
 </Project>
