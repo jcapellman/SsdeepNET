@@ -2,7 +2,7 @@
 
 namespace SSDEEP.NET
 {
-    public sealed class Comparer
+    public sealed class omparer
     {
         /// <summary>
         /// Given two spamsum strings return a value indicating the degree to which they match
@@ -23,15 +23,15 @@ namespace SSDEEP.NET
             var colon1Pos = str1.IndexOf(':');
             var colon2Pos = str2.IndexOf(':');
             if (colon1Pos == -1 || colon2Pos == -1 ||
-                !int.TryParse(str1.Substring(0, colon1Pos), out var block_size1) ||
-                !Int32.TryParse(str2.Substring(0, colon2Pos), out var block_size2) ||
-                block_size1 < 1 || block_size2 < 1)
+                !int.TryParse(str1.Substring(0, colon1Pos), out var blockSize1) ||
+                !int.TryParse(str2.Substring(0, colon2Pos), out var blockSize2) ||
+                blockSize1 < 1 || blockSize2 < 1)
                 throw new Exception("Badly formed input");
 
             // if the blocksizes don't match then we are comparing
             // apples to oranges. This isn't an 'error' per se. We could
             // have two valid signatures, but they can't be compared.
-            if (block_size1 != block_size2 && block_size1 != block_size2 * 2 && block_size2 != block_size1 * 2)
+            if (blockSize1 != blockSize2 && blockSize1 != blockSize2 * 2 && blockSize2 != blockSize1 * 2)
                 throw new Exception("Given signatures cannot be compared");
 
             var colon12Pos = str1.IndexOf(':', colon1Pos + 1);
@@ -70,7 +70,7 @@ namespace SSDEEP.NET
 
             // Now that we know the strings are both well formed, are they
             // identical? We could save ourselves some work here
-            if (block_size1 == block_size2 && s1_1.Length == s2_1.Length)
+            if (blockSize1 == blockSize2 && s1_1.Length == s2_1.Length)
             {
                 bool matched = true;
                 for (int i = 0; i < s1_1.Length; i++)
@@ -88,21 +88,20 @@ namespace SSDEEP.NET
             // each signature has a string for two block sizes. We now
             // choose how to combine the two block sizes. We checked above
             // that they have at least one block size in common
-            if (block_size1 == block_size2)
+            if (blockSize1 == blockSize2)
             {
-                int score1;
-                int score2;
-                score1 = ScoreStrings(s1_1, s2_1, block_size1);
-                score2 = ScoreStrings(s1_2, s2_2, block_size1 * 2);
+                var score1 = ScoreStrings(s1_1, s2_1, blockSize1);
+                var score2 = ScoreStrings(s1_2, s2_2, blockSize1 * 2);
+
                 score = Math.Max(score1, score2);
             }
-            else if (block_size1 == block_size2 * 2)
+            else if (blockSize1 == blockSize2 * 2)
             {
-                score = ScoreStrings(s1_1, s2_2, block_size1);
+                score = ScoreStrings(s1_1, s2_2, blockSize1);
             }
             else
             {
-                score = ScoreStrings(s1_2, s2_1, block_size2);
+                score = ScoreStrings(s1_2, s2_1, blockSize2);
             }
 
             return score;
@@ -147,12 +146,8 @@ namespace SSDEEP.NET
         //
         private static int ScoreStrings(char[] s1, char[] s2, int block_size)
         {
-            int score;
-            int len1;
-            int len2;
-
-            len1 = s1.Length;
-            len2 = s2.Length;
+            var len1 = s1.Length;
+            var len2 = s2.Length;
 
             if (len1 > FuzzyConstants.SpamSumLength || len2 > FuzzyConstants.SpamSumLength)
             {
@@ -167,7 +162,7 @@ namespace SSDEEP.NET
 
             // compute the edit distance between the two strings. The edit distance gives
             // us a pretty good idea of how closely related the two strings are
-            score = EditDistance.Compute(s1, s2);
+            var score = EditDistance.Compute(s1, s2);
 
             // scale the edit distance by the lengths of the two
             // strings. This changes the score to be a measure of the
@@ -212,8 +207,6 @@ namespace SSDEEP.NET
         private static bool HasCommonSubstring(char[] s1, char[] s2)
         {
             int i;
-            int j;
-            int num_hashes;
             uint[] hashes = new uint[FuzzyConstants.SpamSumLength];
 
             // there are many possible algorithms for common substring
@@ -229,7 +222,7 @@ namespace SSDEEP.NET
                 state.Hash((byte)s1[i]);
                 hashes[i] = state.Sum();
             }
-            num_hashes = i;
+            var num_hashes = i;
 
             state = new Roll();
 
@@ -244,6 +237,7 @@ namespace SSDEEP.NET
                 uint h = state.Sum();
                 if (i < FuzzyConstants.RollingWindow - 1)
                     continue;
+                int j;
                 for (j = FuzzyConstants.RollingWindow - 1; j < num_hashes; j++)
                 {
                     if (hashes[j] == 0 || hashes[j] != h)

@@ -16,10 +16,10 @@ namespace SSDEEP.NET
             return ctx.Digest(flags);
         }
 
-        private uint _bhstart = 0;
+        private uint _bhstart;
         private uint _bhend = 1;
         private BlockhashContext[] _bh;
-        private uint _totalSize = 0;
+        private uint _totalSize;
         private Roll _roll = new Roll();
 
         private Hasher()
@@ -217,7 +217,7 @@ namespace SSDEEP.NET
                 {
                     /* Can only happen 30 times. */
                     /* First step for this blocksize. Clone next. */
-                    this.TryForkBlockhash();
+                    TryForkBlockhash();
                 }
                 _bh[i].Digest[_bh[i].DLen] = FuzzyConstants.Base64[_bh[i].H % 64];
                 _bh[i].HalfDigest = FuzzyConstants.Base64[_bh[i].HalfH % 64];
@@ -233,7 +233,7 @@ namespace SSDEEP.NET
                 }
                 else
                 {
-                    this.TryReduceBlockhash();
+                    TryReduceBlockhash();
                 }
             }
         }
