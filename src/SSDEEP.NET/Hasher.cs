@@ -6,27 +6,33 @@ namespace SSDEEP.NET
 {
     public sealed class Hasher
     {
+        private int _bhstart;
+        private int _bhend = 1;
+        private readonly BlockhashContext[] _bh;
+        private int _totalSize;
+        private readonly Roll _roll = new Roll();
+
         /// <summary>
         /// Computes the fuzzy hash of the first len bytes of the buffer.
         /// </summary>
-        public static string HashBuffer(byte[] buf, int len, FuzzyHashMode flags = FuzzyHashMode.None)
+        public static string HashBuffer(ReadOnlyMemory<byte> buf, int len, FuzzyHashMode flags = FuzzyHashMode.None)
         {
             var ctx = new Hasher();
+
             ctx.Update(buf, len);
+
             return ctx.Digest(flags);
         }
-
-        private uint _bhstart;
-        private uint _bhend = 1;
-        private BlockhashContext[] _bh;
-        private uint _totalSize;
-        private Roll _roll = new Roll();
 
         private Hasher()
         {
             _bh = new BlockhashContext[FuzzyConstants.NumBlockhashes];
-            for (int i = 0; i < _bh.Length; i++)
+
+            for (var i = 0; i < _bh.Length; i++)
+            {
                 _bh[i] = new BlockhashContext();
+            }
+
             _bh[0].Reset(true);
         }
 
@@ -35,15 +41,22 @@ namespace SSDEEP.NET
             var i = 0;
 
             while (i < 3 && i < n)
+            {
                 dst[pos++] = src[i++];
+            }
 
             while (i < n)
             {
                 var current = src[i++];
+
                 if (current == dst[pos - 1] && current == dst[pos - 2] && current == dst[pos - 3])
+                {
                     n--;
+                }
                 else
+                {
                     dst[pos++] = current;
+                }
             }
 
             return n;
@@ -59,12 +72,12 @@ namespace SSDEEP.NET
             var result = new byte[FuzzyConstants.MaxResultLength];
             var pos = 0;
 
-            uint bi = _bhstart;
-            uint h = _roll.Sum();
+            int bi = _bhstart;
+            int h = _roll.Sum();
             int i; // Exclude terminating '\0'.
 
             /* Initial blocksize guess. */
-            while ((((uint)FuzzyConstants.MinBlocksize) << (int)(bi)) * FuzzyConstants.SpamSumLength < _totalSize)
+            while (((uint)FuzzyConstants.MinBlocksize << bi) * FuzzyConstants.SpamSumLength < _totalSize)
             {
                 ++bi;
                 if (bi >= FuzzyConstants.NumBlockhashes)
@@ -72,11 +85,13 @@ namespace SSDEEP.NET
                     throw new OverflowException("EOVERFLOW");
                 }
             }
+
             /* Adapt blocksize guess to actual digest length. */
             while (bi >= _bhend)
             {
                 --bi;
             }
+
             while (bi > _bhstart && _bh[bi].DLen < FuzzyConstants.SpamSumLength / 2)
             {
                 --bi;
@@ -191,8 +206,8 @@ namespace SSDEEP.NET
 
         private void EngineStep(byte c)
         {
-            uint h;
-            uint i;
+            int h;
+            int i;
             /* At each character we update the rolling hash and the normal hashes.
              * When the rolling hash hits a reset value then we emit a normal hash
              * as a element of the signature and reset the normal hash. */
@@ -200,7 +215,9 @@ namespace SSDEEP.NET
             h = _roll.Sum();
 
             for (i = _bhstart; i < _bhend; ++i)
+            {
                 _bh[i].Hash(c);
+            }
 
             for (i = _bhstart; i < _bhend; ++i)
             {
@@ -241,13 +258,13 @@ namespace SSDEEP.NET
         /// <summary>
         /// Feed the data contained in the given buffer to the state.
         /// </summary>
-        private void Update(IReadOnlyList<byte> buffer, int len)
+        private void Update(ReadOnlyMemory<byte> buffer, int len)
         {
-            _totalSize += (uint)buffer.Count;
+            _totalSize += buffer.Length;
 
             for (var i = 0; i < len; i++)
             {
-                EngineStep(buffer[i]);
+                EngineStep(buffer.Span[i]);
             }
         }
     }

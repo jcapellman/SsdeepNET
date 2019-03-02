@@ -214,7 +214,7 @@ namespace SSDEEP.NET
         private static bool HasCommonSubstring(Span<char> s1, Span<char> s2)
         {
             int i;
-            var hashes = new uint[FuzzyConstants.SpamSumLength];
+            var hashes = new int[FuzzyConstants.SpamSumLength];
 
             // there are many possible algorithms for common substring
             // detection. In this case I am re-using the rolling hash code

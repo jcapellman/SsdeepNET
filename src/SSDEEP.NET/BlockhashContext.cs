@@ -10,11 +10,11 @@
         private const int HashPrime = 0x01000193;
         private const int HashInit = 0x28021967;
 
-        public uint H;
-        public uint HalfH;
+        public int H;
+        public int HalfH;
         public byte[] Digest = new byte[FuzzyConstants.SpamSumLength];
         public byte HalfDigest;
-        public uint DLen;
+        public int DLen;
 
         public void Hash(byte c)
         {
@@ -23,7 +23,7 @@
         }
 
         /* A simple non-rolling hash, based on the FNV hash. */
-        private static uint Hash(byte c, uint h) => (h * HashPrime) ^ c;
+        private static int Hash(byte c, int h) => (h * HashPrime) ^ c;
 
         public void Reset(bool init = false)
         {

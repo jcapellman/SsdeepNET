@@ -1,14 +1,14 @@
 ﻿namespace SSDEEP.NET
 {
-    sealed class Roll
+    internal sealed class Roll
     {
         private readonly byte[] _window = new byte[FuzzyConstants.RollingWindow];
-        private uint _h1;
-        private uint _h2;
-        private uint _h3;
-        private uint _n;
+        private int _h1;
+        private int _h2;
+        private int _h3;
+        private int _n;
 
-        public uint Sum() => _h1 + _h2 + _h3;
+        public int Sum() => _h1 + _h2 + _h3;
 
         /*
          * a rolling hash, based on the Adler checksum. By using a rolling hash
@@ -23,7 +23,7 @@
         internal void Hash(byte c)
         {
             _h2 -= _h1;
-            _h2 += FuzzyConstants.RollingWindow * (uint)c;
+            _h2 += FuzzyConstants.RollingWindow * c;
 
             _h1 += c;
             _h1 -= _window[_n % FuzzyConstants.RollingWindow];
