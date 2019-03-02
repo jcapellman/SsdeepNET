@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SSDEEP.NET
 {
@@ -72,17 +74,12 @@ namespace SSDEEP.NET
             // identical? We could save ourselves some work here
             if (blockSize1 == blockSize2 && s1_1.Length == s2_1.Length)
             {
-                bool matched = true;
-                for (int i = 0; i < s1_1.Length; i++)
-                {
-                    if (s1_1[i] != s2_1[i])
-                    {
-                        matched = false;
-                        break;
-                    }
-                }
+                var matched = !s1_1.Where((t, i) => t != s2_1[i]).Any();
+
                 if (matched)
+                {
                     return 100;
+                }
             }
 
             // each signature has a string for two block sizes. We now
@@ -110,25 +107,29 @@ namespace SSDEEP.NET
         // eliminate sequences of longer than 3 identical characters. These
         // sequences contain very little information so they tend to just bias
         // the result unfairly
-        internal static char[] EliminateSequences(char[] str)
+        internal static char[] EliminateSequences(Span<char> str)
         {
             var ret = new char[str.Length];
-            uint i;
-            uint j;
+            int i;
+            int j;
 
-            var len = str.Length;
-            for (i = 0; i < 3 && i < len; i++)
+            for (i = 0; i < 3 && i < str.Length; i++)
+            {
                 ret[i] = str[i];
-            
-            if (len < 3)
-                return ret;
+            }
 
-            for (i = j = 3; i < len; i++)
+            if (str.Length < 3)
+            {
+                return ret;
+            }
+
+            for (i = j = 3; i < str.Length; i++)
             {
                 var current = str[i];
+
                 if (current != str[i - 1] || current != str[i - 2] || current != str[i - 3])
                 {
-                    ret[j++] = str[i];
+                    ret[j++] = current;
                 }
             }
 
@@ -144,7 +145,7 @@ namespace SSDEEP.NET
         // 100 is a great match. The block_size is used to cope with very small
         // messages.
         //
-        private static int ScoreStrings(char[] s1, char[] s2, int block_size)
+        private static int ScoreStrings(Span<char> s1, Span<char> s2, int block_size)
         {
             var len1 = s1.Length;
             var len2 = s2.Length;
@@ -158,7 +159,9 @@ namespace SSDEEP.NET
             // the two strings must have a common substring of length
             // ROLLING_WINDOW to be candidates
             if (!HasCommonSubstring(s1, s2))
+            {
                 return 0;
+            }
 
             // compute the edit distance between the two strings. The edit distance gives
             // us a pretty good idea of how closely related the two strings are
@@ -191,8 +194,12 @@ namespace SSDEEP.NET
 
             // when the blocksize is small we don't want to exaggerate the match size
             var matchSize = block_size / FuzzyConstants.MinBlocksize * Math.Min(len1, len2);
+
             if (score > matchSize)
+            {
                 score = matchSize;
+            }
+
             return score;
         }
 
@@ -204,10 +211,10 @@ namespace SSDEEP.NET
         //
         // return 1 if the two strings do have a common substring, 0 otherwise
         //
-        private static bool HasCommonSubstring(char[] s1, char[] s2)
+        private static bool HasCommonSubstring(Span<char> s1, Span<char> s2)
         {
             int i;
-            uint[] hashes = new uint[FuzzyConstants.SpamSumLength];
+            var hashes = new uint[FuzzyConstants.SpamSumLength];
 
             // there are many possible algorithms for common substring
             // detection. In this case I am re-using the rolling hash code
@@ -222,7 +229,8 @@ namespace SSDEEP.NET
                 state.Hash((byte)s1[i]);
                 hashes[i] = state.Sum();
             }
-            var num_hashes = i;
+
+            var numHashes = i;
 
             state = new Roll();
 
@@ -234,11 +242,16 @@ namespace SSDEEP.NET
             for (i = 0; i < s2.Length && s2[i] != '\0'; i++)
             {
                 state.Hash((byte)s2[i]);
-                uint h = state.Sum();
+                var h = state.Sum();
+
                 if (i < FuzzyConstants.RollingWindow - 1)
+                {
                     continue;
+                }
+
                 int j;
-                for (j = FuzzyConstants.RollingWindow - 1; j < num_hashes; j++)
+
+                for (j = FuzzyConstants.RollingWindow - 1; j < numHashes; j++)
                 {
                     if (hashes[j] == 0 || hashes[j] != h)
                     {
@@ -247,14 +260,21 @@ namespace SSDEEP.NET
 
                     // we have a potential match - confirm it
                     var s2StartPos = i - FuzzyConstants.RollingWindow + 1;
-                    int len = 0;
+                    var len = 0;
+
                     while (len + s2StartPos < s2.Length && s2[len + s2StartPos] != '\0')
+                    {
                         len++;
+                    }
+
                     if (len < FuzzyConstants.RollingWindow)
+                    {
                         continue;
+                    }
 
                     var matched = true;
                     var s1StartPos = j - FuzzyConstants.RollingWindow + 1;
+
                     for (var pos = 0; pos < FuzzyConstants.RollingWindow; pos++)
                     {
                         var s1Char = s1[s1StartPos + pos];
@@ -267,11 +287,15 @@ namespace SSDEEP.NET
                         }
 
                         if (s1Char == '\0')
+                        {
                             break;
+                        }
                     }
 
                     if (matched)
+                    {
                         return true;
+                    }
                 }
             }
 

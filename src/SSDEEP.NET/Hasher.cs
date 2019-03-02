@@ -246,7 +246,9 @@ namespace SSDEEP.NET
             _totalSize += (uint)buffer.Count;
 
             for (var i = 0; i < len; i++)
+            {
                 EngineStep(buffer[i]);
+            }
         }
     }
 }

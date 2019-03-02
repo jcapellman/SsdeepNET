@@ -22,7 +22,7 @@ namespace SSDEEP.NET
         private const int RemoveCost = 1;
         private const int ReplaceCost = 2;
 
-        public static int Compute(char[] s1, char[] s2)
+        public static int Compute(Span<char> s1, Span<char> s2)
         {
             var t0 = new int[MaxLength + 1];
             var t1 = new int[MaxLength + 1];
