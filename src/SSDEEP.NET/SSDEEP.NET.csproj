@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <Authors>Jarred Capellman</Authors>
     <Company />
     <Description>.NET Standard SSDEEP Implementation</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>8.0</LangVersion>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 </Project>
